@@ -290,6 +290,16 @@ Screen.prototype.addVerticalBar = function() {
   return this.widgets[id];
 };
 /**
+ * Adds a IconWidget
+ * @function
+ * @return {IconWidget}
+ */
+Screen.prototype.addIcon = function() {
+  var id = this._newWidgetId();
+  this.widgets[id] = new IconWidget(this,id);
+  return this.widgets[id];
+};
+/**
  * Adds a BigNumberWidget
  * @function
  * @return {BigNumberWidget}
@@ -495,6 +505,64 @@ VerticalBarWidget.prototype.setPos = StringWidget.prototype.setPos;
  * @param  {Float}   percent   number between 0 and 1
  */
 VerticalBarWidget.prototype.setValue = HorizontalBarWidget.prototype.setValue;
+
+/**
+ * Icon widget
+ * 
+ * Supported Icons
+ * ```
+ * BLOCK_FILLED
+ * HEART_OPEN
+ * HEART_FILLED
+ * ARROW_UP
+ * ARROW_DOWN
+ * ARROW_LEFT
+ * ARROW_RIGHT
+ * CHECKBOX_OFF
+ * CHECKBOX_ON
+ * CHECKBOX_GRAY
+ * SELECTOR_AT_LEFT
+ * SELECTOR_AT_RIGHT
+ * ELLIPSIS
+ * STOP
+ * PAUSE
+ * PLAY
+ * PLAYR
+ * FF
+ * FR
+ * NEXT
+ * PREV
+ * REC
+ * ```
+ * @class
+ * @extends Widget
+ */
+function IconWidget(screen,widgetId){
+  Widget.call(this,screen,widgetId,"icon");
+}
+util.inherits(IconWidget, Widget);
+
+/**
+ * Set position and iconname
+ * @param  {Integer} x        x position
+ * @param  {Integer} y        y position
+ * @param  {String}  iconname the iconname
+ */
+IconWidget.prototype.set = function (x, y, iconname) {
+  this.setParams(x, y, iconname);
+};
+
+/**
+ * Set Icon
+ * @param  {String}  iconname the iconname
+ */
+IconWidget.prototype.setIcon = function (iconname) {
+  if (_.isUndefined(this.params)) {
+    this.set(1, 1, iconname); // fallback
+  } else {
+    this.set(this.params[0], this.params[1], iconname);
+  }
+};
 
 /**
  * BigNumber widget
