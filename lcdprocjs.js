@@ -1,3 +1,5 @@
+/* jshint node: true */
+
 "use strict";
 var Socket = require("net").Socket;
 var events = require("events");
@@ -117,7 +119,7 @@ Client.prototype.connect = function() {
   // Socket connect
   this.socket.setEncoding("utf8");
   this.socket.connect(this.config.port, this.config.host);
-}
+};
 
 /**
  * Disconnect
@@ -125,7 +127,7 @@ Client.prototype.connect = function() {
  */
 Client.prototype.close = function() {
   this.socket.end();
-}
+};
 
 /**
  * A factory method which adds a Screen to this Client.
@@ -140,7 +142,7 @@ Client.prototype.addScreen = function(config) {
   var id = this._newScreenId();
   this.screens[id] = new Screen(this, id, config);
   return this.screens[id];
-}
+};
 
 /*
  * Write arguments to socket (arg can be an array or a string).
@@ -158,7 +160,7 @@ Client.prototype._write = function() {
   var o = out.join(" ");
   log("SEND", o);
   this.socket.write(o + "\n");
-}
+};
 
 /*
  * Delete a screen from the internal map
@@ -166,7 +168,7 @@ Client.prototype._write = function() {
  */
 Client.prototype._unrefScreen = function(id) {
   delete this.screens[id];
-}
+};
 
 /*
  * Return an id for a new screen
@@ -174,7 +176,7 @@ Client.prototype._unrefScreen = function(id) {
  */
 Client.prototype._newScreenId = function() {
   return this.config.name + "_s" + this.screenCnt++;
-}
+};
 
 //##############################################################################
 
@@ -218,7 +220,7 @@ Screen.prototype.setConfig = function(config) {
   if(_.isEmpty(config)) return;
   _.assign(this.config, config);
   this.client._write("screen_set", this.screenId, flattenObj(config));
-}
+};
 
 /**
  * Delete this Screen
@@ -227,7 +229,7 @@ Screen.prototype.setConfig = function(config) {
 Screen.prototype.delete = function() {
   this.client._write("screen_del", this.screenId);
   this.client._unrefScreen(this.screenId);
-}
+};
 
 
 /**
@@ -241,7 +243,7 @@ Screen.prototype.addWidget = function(type) {
   var id = this._newWidgetId();
   this.widgets[id] = new Widget(this, id, type);
   return this.widgets[id];
-}
+};
 
 
 /**
@@ -256,7 +258,7 @@ Screen.prototype.addTitle = function() {
     return this.widgets[id];
   }
   return this.widgets[id];
-}
+};
 /**
  * Adds a StringWidget
  * @function
@@ -266,7 +268,7 @@ Screen.prototype.addString = function() {
   var id = this._newWidgetId();
   this.widgets[id] = new StringWidget(this, id);
   return this.widgets[id];
-}
+};
 /**
  * Adds a HorizontalBarWidget
  * @function
@@ -276,7 +278,7 @@ Screen.prototype.addHorizontalBar = function() {
   var id = this._newWidgetId();
   this.widgets[id] = new HorizontalBarWidget(this, id);
   return this.widgets[id];
-}
+};
 /**
  * Adds a VerticalBarWidget
  * @function
@@ -286,7 +288,7 @@ Screen.prototype.addVerticalBar = function() {
   var id = this._newWidgetId();
   this.widgets[id] = new VerticalBarWidget(this, id);
   return this.widgets[id];
-}
+};
 /**
  * Adds a BigNumberWidget
  * @function
@@ -296,7 +298,7 @@ Screen.prototype.addBigNumber = function() {
   var id = this._newWidgetId();
   this.widgets[id] = new BigNumberWidget(this, id);
   return this.widgets[id];
-}
+};
 
 
 /*
@@ -305,7 +307,7 @@ Screen.prototype.addBigNumber = function() {
  */
 Screen.prototype._newWidgetId = function() {
   return this.screenId + "_w" + this.widgetCnt++;
-}
+};
 
 /*
  * Delete a widget from the internal map
@@ -313,7 +315,7 @@ Screen.prototype._newWidgetId = function() {
  */
 Screen.prototype._unrefWidget = function(id) {
   delete this.widgets[id];
-}
+};
 
 //##############################################################################
 
@@ -339,7 +341,7 @@ function Widget(screen, widgetId, widgetType) {
 Widget.prototype.setParams = function() {
   this.params = Array.apply(null, arguments);
   this.screen.client._write("widget_set", this.screen.screenId, this.widgetId, this.params);
-}
+};
 
 /**
  * Delete this widget from screen
@@ -348,7 +350,7 @@ Widget.prototype.setParams = function() {
 Widget.prototype.delete = function() {
   this.screen.client._write("widget_del", this.screen.screenId, this.widgetId);
   this.screen._unrefWidget(this.widgetId);
-}
+};
 
 //##############################################################################
 
@@ -372,7 +374,7 @@ util.inherits(TitleWidget, Widget);
  */
 TitleWidget.prototype.setTitle = function(text) {
  this.setParams(quoteString(text));
-}
+};
 
 /**
  * String widget
@@ -392,7 +394,7 @@ util.inherits(StringWidget, Widget);
  */
 StringWidget.prototype.set = function(x, y, text) {
   this.setParams(x, y, quoteString(text));
-}
+};
 /**
  * Set widget position
  * @function
@@ -405,7 +407,7 @@ StringWidget.prototype.setPos = function(x, y) {
   } else {
     this.setParams(x, y, this.params[2]);
   }
-}
+};
 /**
  * Set widget text
  * @function
@@ -417,7 +419,7 @@ StringWidget.prototype.setText = function(text) {
   } else {
     this.set(this.params[0], this.params[1], text);
   }
-}
+};
 
 /**
  * Horizontal bar widget
@@ -439,7 +441,7 @@ HorizontalBarWidget.prototype.set = function(x, y, percent) {
   this.setParams(x, y,
     Math.round((this.screen.client.lcdprocConfig.size.width - x + 1) *
     this.screen.client.lcdprocConfig.cellsize.width * percent));
-}
+};
 /**
  * Set widget position
  * @function
@@ -458,7 +460,7 @@ HorizontalBarWidget.prototype.setValue = function(percent) {
   } else {
     this.set(this.params[0], this.params[1], percent);
   }
-}
+};
 
 /**
  * Vertical bar widget
@@ -479,7 +481,7 @@ util.inherits(VerticalBarWidget, Widget);
 VerticalBarWidget.prototype.set = function(x, y, percent) {
   this.setParams(x, y,
     Math.round(y * this.screen.client.lcdprocConfig.cellsize.height * percent));
-}
+};
 /**
  * Set widget position
  * @function
@@ -511,7 +513,7 @@ util.inherits(BigNumberWidget, Widget);
  */
 BigNumberWidget.prototype.set = function(x, number) {
   this.setParams(x, number);
-}
+};
 
 //##############################################################################
 //##############################################################################
