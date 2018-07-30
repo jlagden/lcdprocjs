@@ -300,6 +300,16 @@ Screen.prototype.addIcon = function() {
   return this.widgets[id];
 };
 /**
+ * Adds a ScrollerWidget
+ * @function
+ * @return {ScrollerWidget}
+ */
+Screen.prototype.addScroller = function() {
+  var id = this._newWidgetId();
+  this.widgets[id] = new ScrollerWidget(this,id);
+  return this.widgets[id];
+};
+/**
  * Adds a BigNumberWidget
  * @function
  * @return {BigNumberWidget}
@@ -561,6 +571,46 @@ IconWidget.prototype.setIcon = function (iconname) {
     this.set(1, 1, iconname); // fallback
   } else {
     this.set(this.params[0], this.params[1], iconname);
+  }
+};
+
+/**
+ * Scroller widget
+ * @class
+ * @extends Widget
+ * @param {Screen} screen 
+ * @param {String} widgetId 
+ */
+function ScrollerWidget(screen, widgetId) {
+    Widget.call(this,screen,widgetId,"scroller");
+}
+util.inherits(ScrollerWidget, Widget);
+
+/**
+ * Set position, direction, speed and text
+ * @function
+ * @param  {Integer} left      X position of top left corner
+ * @param  {Integer} top       Y position of top left corner
+ * @param  {Integer} right     X position of bottom right corner
+ * @param  {Integer} bottom    Y position of bottom right corner
+ * @param  {String}  direction h = horizontal, v = vertical, m = marquee
+ * @param  {Integer} speed     number of movements per rendering stroke (8 times / second)
+ * @param  {String}  text      Text to scroll
+ */
+ScrollerWidget.prototype.set = function(left, top, right, bottom, direction, speed, text) {
+  this.setParams(left,top,right,bottom,direction,speed,text);
+};
+
+/**
+ * Set text to scroll
+ * @param  {String}  text  Text to scroll
+ */
+ScrollerWidget.prototype.setText = function (text) {
+  if(_.isUndefined(this.params)) {
+      this.set(1,1,2,1,"h",1,text); // fallback
+  } else {
+      this.set(this.params[0], this.params[1], this.params[2], this.params[3],
+    this.params[4],this.params[5],text);
   }
 };
 
