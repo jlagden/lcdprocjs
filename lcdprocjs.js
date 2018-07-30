@@ -20,8 +20,9 @@ var debug = false; // pfft log...
  *   name: "lcdprocjs"
  * }
  * ```
+ * @class
+ * @extends EventEmitter
  * @param {Object} config client configuration
- * @event ready  signal a ready client
  */
 function Client(config) {
   this.config = {
@@ -52,6 +53,7 @@ module.exports.Client = Client;
 
 /**
  * Connect, handshaking, messages processing
+ * @function
  * @fires ready  client ready
  * @fires shown  Screen shown by server
  * @fires hidden Screen hidden by server
@@ -119,6 +121,7 @@ Client.prototype.connect = function() {
 
 /**
  * Disconnect
+ * @function
  */
 Client.prototype.close = function() {
   this.socket.end();
@@ -129,6 +132,7 @@ Client.prototype.close = function() {
  *
  * See [LCDproc Developer's Guide](http://lcdproc.sourceforge.net/docs/lcdproc-0-5-7-dev.html#language-screens)
  *
+ * @function
  * @param  {Object} config screen configuration
  * @return {Screen}
  */
@@ -139,8 +143,8 @@ Client.prototype.addScreen = function(config) {
 }
 
 /*
- * [Private method]
  * Write arguments to socket (arg can be an array or a string).
+ * @private
  */
 Client.prototype._write = function() {
   var out = [];
@@ -157,16 +161,16 @@ Client.prototype._write = function() {
 }
 
 /*
- * [Private method]
  * Delete a screen from the internal map
+ * @private
  */
 Client.prototype._unrefScreen = function(id) {
   delete this.screens[id];
 }
 
 /*
- * [Private method]
  * Return an id for a new screen
+ * @private
  */
 Client.prototype._newScreenId = function() {
   return this.config.name + "_s" + this.screenCnt++;
@@ -187,10 +191,11 @@ Client.prototype._newScreenId = function() {
  * }
  * ```
  *
+ * @class
+ * @extends EventEmitter
  * @param {Client} client Client instance
  * @param {Screen} screenId id
  * @param {Object} config initial configuration
- * @event
  */
 function Screen(client, screenId, config) {
   this.client = client;
@@ -206,6 +211,7 @@ util.inherits(Screen, events.EventEmitter);
 
 /**
  * Set a new config for the screen
+ * @function
  * @param {Object} config new configuration (adds or overwrite)
  */
 Screen.prototype.setConfig = function(config) {
@@ -216,6 +222,7 @@ Screen.prototype.setConfig = function(config) {
 
 /**
  * Delete this Screen
+ * @function
  */
 Screen.prototype.delete = function() {
   this.client._write("screen_del", this.screenId);
@@ -226,6 +233,7 @@ Screen.prototype.delete = function() {
 /**
  * Adds a generic Widget to this screen.
  *
+ * @function
  * @param  {String} type widget type
  * @return {Widget}
  */
@@ -238,6 +246,7 @@ Screen.prototype.addWidget = function(type) {
 
 /**
  * Adds a TitleWidget
+ * @function
  * @return {TitleWidget}
  */
 Screen.prototype.addTitle = function() {
@@ -250,6 +259,7 @@ Screen.prototype.addTitle = function() {
 }
 /**
  * Adds a StringWidget
+ * @function
  * @return {StringWidget}
  */
 Screen.prototype.addString = function() {
@@ -259,6 +269,7 @@ Screen.prototype.addString = function() {
 }
 /**
  * Adds a HorizontalBarWidget
+ * @function
  * @return {HorizontalBarWidget}
  */
 Screen.prototype.addHorizontalBar = function() {
@@ -268,6 +279,7 @@ Screen.prototype.addHorizontalBar = function() {
 }
 /**
  * Adds a VerticalBarWidget
+ * @function
  * @return {VerticalBarWidget}
  */
 Screen.prototype.addVerticalBar = function() {
@@ -277,6 +289,7 @@ Screen.prototype.addVerticalBar = function() {
 }
 /**
  * Adds a BigNumberWidget
+ * @function
  * @return {BigNumberWidget}
  */
 Screen.prototype.addBigNumber = function() {
@@ -287,16 +300,16 @@ Screen.prototype.addBigNumber = function() {
 
 
 /*
- * [Private method]
  * Returns an id for a new widget
+ * @private
  */
 Screen.prototype._newWidgetId = function() {
   return this.screenId + "_w" + this.widgetCnt++;
 }
 
 /*
- * [Private method]
  * Delete a widget from the internal map
+ * @private
  */
 Screen.prototype._unrefWidget = function(id) {
   delete this.widgets[id];
@@ -306,6 +319,8 @@ Screen.prototype._unrefWidget = function(id) {
 
 /**
  * A generic Widget
+ * @class
+ * @extends EventEmitter
  * @param {Screen} screen Screen instance
  * @param {string} widgetId id
  * @param {string} widgetType widget type
@@ -319,6 +334,7 @@ function Widget(screen, widgetId, widgetType) {
 
 /**
  * Set widget params
+ * @function
  */
 Widget.prototype.setParams = function() {
   this.params = Array.apply(null, arguments);
@@ -327,6 +343,7 @@ Widget.prototype.setParams = function() {
 
 /**
  * Delete this widget from screen
+ * @function
  */
 Widget.prototype.delete = function() {
   this.screen.client._write("widget_del", this.screen.screenId, this.widgetId);
@@ -341,6 +358,8 @@ Widget.prototype.delete = function() {
 
 /**
  * Title widget
+ * @class
+ * @extends Widget
  */
 function TitleWidget(screen, widgetId) {
  Widget.call(this, screen, widgetId, "title");
@@ -348,6 +367,7 @@ function TitleWidget(screen, widgetId) {
 util.inherits(TitleWidget, Widget);
 /**
  * Set title text
+ * @function
  * @param  {String} text text
  */
 TitleWidget.prototype.setTitle = function(text) {
@@ -356,6 +376,8 @@ TitleWidget.prototype.setTitle = function(text) {
 
 /**
  * String widget
+ * @class
+ * @extends Widget
  */
 function StringWidget(screen, widgetId) {
   Widget.call(this, screen, widgetId, "string");
@@ -363,6 +385,7 @@ function StringWidget(screen, widgetId) {
 util.inherits(StringWidget, Widget);
 /**
  * Set widget position and text
+ * @function
  * @param  {Integer} x    x position
  * @param  {Integer} y    y position
  * @param  {String} text  text
@@ -372,6 +395,7 @@ StringWidget.prototype.set = function(x, y, text) {
 }
 /**
  * Set widget position
+ * @function
  * @param  {Integer} x    x position
  * @param  {Integer} y    y position
  */
@@ -384,6 +408,7 @@ StringWidget.prototype.setPos = function(x, y) {
 }
 /**
  * Set widget text
+ * @function
  * @param  {String} text  text
  */
 StringWidget.prototype.setText = function(text) {
@@ -396,6 +421,8 @@ StringWidget.prototype.setText = function(text) {
 
 /**
  * Horizontal bar widget
+ * @class
+ * @extends Widget
  */
 function HorizontalBarWidget(screen, widgetId) {
   Widget.call(this, screen, widgetId, "hbar");
@@ -403,6 +430,7 @@ function HorizontalBarWidget(screen, widgetId) {
 util.inherits(HorizontalBarWidget, Widget);
 /**
  * Set widget position and value
+ * @function
  * @param  {Integer} x         x position
  * @param  {Integer} y         y position
  * @param  {Float}   percent   number between 0 and 1
@@ -414,12 +442,14 @@ HorizontalBarWidget.prototype.set = function(x, y, percent) {
 }
 /**
  * Set widget position
+ * @function
  * @param  {Integer} x    x position
  * @param  {Integer} y    y position
  */
 HorizontalBarWidget.prototype.setPos = StringWidget.prototype.setPos;
 /**
  * Set widget value
+ * @function
  * @param  {Float}   percent   number between 0 and 1
  */
 HorizontalBarWidget.prototype.setValue = function(percent) {
@@ -432,6 +462,8 @@ HorizontalBarWidget.prototype.setValue = function(percent) {
 
 /**
  * Vertical bar widget
+ * @class
+ * @extends Widget
  */
 function VerticalBarWidget(screen, widgetId) {
   Widget.call(this, screen, widgetId, "vbar");
@@ -439,6 +471,7 @@ function VerticalBarWidget(screen, widgetId) {
 util.inherits(VerticalBarWidget, Widget);
 /**
  * Set widget position and value
+ * @function
  * @param  {Integer} x         x position
  * @param  {Integer} y         y position
  * @param  {Float}   percent   number between 0 and 1
@@ -449,18 +482,22 @@ VerticalBarWidget.prototype.set = function(x, y, percent) {
 }
 /**
  * Set widget position
+ * @function
  * @param  {Integer} x    x position
  * @param  {Integer} y    y position
  */
 VerticalBarWidget.prototype.setPos = StringWidget.prototype.setPos;
 /**
  * Set widget value
+ * @function
  * @param  {Float}   percent   number between 0 and 1
  */
 VerticalBarWidget.prototype.setValue = HorizontalBarWidget.prototype.setValue;
 
 /**
  * BigNumber widget
+ * @class
+ * @extends Widget
  */
 function BigNumberWidget(screen, widgetId) {
   Widget.call(this, screen, widgetId, "num");
@@ -468,6 +505,7 @@ function BigNumberWidget(screen, widgetId) {
 util.inherits(BigNumberWidget, Widget);
 /**
  * Set position and value
+ * @function
  * @param  {Integer} x      x position
  * @param  {Integer} number number between 1 an 10 (the special number 10 is a colon)
  */
@@ -478,10 +516,19 @@ BigNumberWidget.prototype.set = function(x, number) {
 //##############################################################################
 //##############################################################################
 
+/**
+ * Quote the string
+ * @private
+ */
 function quoteString(str) {
   return "{" + str + "}";
 }
 
+/**
+ * Flattens out the config object so it is just an arrary of [key,value,key,value...]
+ * and adds a dash to the key
+ * @private
+ */
 function flattenObj(obj, donotdashkeys) {
   var out = [];
   _.forOwn(obj, function(value, key) {
@@ -491,6 +538,10 @@ function flattenObj(obj, donotdashkeys) {
   return out;
 }
 
+/**
+ * Log if debug is switched on
+ * @private
+ */
 function log() {
   if(debug) console.log.apply(null, arguments);
 }
